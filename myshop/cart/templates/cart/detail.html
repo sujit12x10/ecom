@@ -1,0 +1,111 @@
+{% extends "shop/base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+{% block title %}
+    Your Shopping Cart
+{% endblock %}
+{% block cart %}
+    <div class="row">
+        <div class="col-md-8">
+            <div class="col-md-12 col-lg-12 col-11 mx-auto mx-lg-3 mb-lg-3 mb-5 box-element">
+                <div>
+                    <a class="btn btn-outline-dark" href="{% url "shop:product_list" %}">&#x2190; Continue Shopping</a>
+                </div>
+            </div>
+            <!-- <div class="float-start"> -->
+                <!-- left side div -->
+                {% for item in cart %}
+                {% with product=item.product %}
+                <div class="col-md-12 col-lg-12 col-11 mx-auto mx-lg-3 mb-lg-3 mb-5 box-element">
+                    <div class="card p-4">
+                        <div class="row">
+                            <!-- cart image -->
+                            <div class="col-md-5 col-11 mx-auto bg-lightd-flex justify-content-center align-items-center shadow product_img">
+                                <img src="{% if product.image %}{{ product.image.url }}{% else %}{% static "img/no_image.png" %}{% endif %}" class="thumbnail" alt="cart img">
+                            </div>
+            
+                            <!-- cart product details -->
+                            <div class="col-md-7 col-11 mx-auto px-4 mt-2">
+                                <div class="row">
+                                    <!-- product name -->
+                                    <div class="col-6 cart-title">
+                                        <a style="text-decoration: none;" href="{{ product.get_absolute_url }}"><h4 style="font-family: Aclonica" class="mb-4">{{ product.name }}</h4></a>
+                                        <h6 class="mb-2">{{ product.description }}</h6>
+                                        <p class="mb-2"><b>${{ product.price }}  x {{ item.quantity }} item{{ item.quantity|pluralize }}</b></p>
+                                    </div>
+                                </div>
+            
+                                <!-- //remove move and price -->
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <p>
+                                            <form action="{% url 'cart:cart_add' product.id %}" method="post">
+                                                {{ item.update_quantity_form.quantity }}
+                                                {{ item.update_quantity_form.override }}
+                                                <input type="submit" value="Update">
+                                                {% csrf_token %}
+                                            </form>
+                                        </p>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <p>
+                                            <form action="{% url "cart:cart_remove" product.id %}" method="post">
+                                                <input type="submit" value="Remove" >
+                                                {% csrf_token %}
+                                            </form>
+                                        </p>
+                                        <h3 class="text-end mt-4"><b>${{ item.total_price }}</b></h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endwith %}
+            {% endfor %}
+            <!-- </div> -->
+        </div>
+
+        <div class="col-md-4">
+                <!-- right side div -->
+                <div class="col-md-12 col-lg-12 col-11 mx-auto mt-lg-0">
+                    <div class="right_side p-3 box-element bg-white">
+                        <b><h3 style="font-family: Aclonica">Total Amount</h3></b>
+                        <hr>
+                        <div class="price_indiv d-flex justify-content-between">
+                            <p>Subtotal</p>
+                            <b>${{ cart.get_total_price|floatformat:2 }}</b>
+                        </div>
+                        {% if cart.coupon %}
+                            <div class="price_indiv d-flex justify-content-between num neg">
+                                <b><p>"{{ cart.coupon.code }}" coupon ({{ cart.coupon.discount }}% off)</p></b>
+                                <b>-${{ cart.get_discount|floatformat:2 }}</b>
+                            </div>                 
+                        {% endif %}
+                        <hr>
+                        <div class="total_amount d-flex justify-content-between font-weight-bolds">
+                            <p>The total amount</p>
+                            <p><b>${{ cart.get_total_price_after_discount|floatformat:2 }}</b></p>
+                        </div>
+                        <a style="font-family: Aclonica" class="btn btn-outline-info text-uppercase mt-md-2" href="{% url "orders:order_create" %}">Checkout</a>
+                    </div>
+                    <!-- discount code -->
+                    <div class="discount_code mt-3 box-element d-flex justify-content-center">
+                        <form action="{% url "coupons:apply" %}" method="post">
+                            {% csrf_token %}
+                            <div class="input-group mb-3">
+                                {% render_field coupon_apply_form.code class="form-control mx-2 mt-3 h-50" placeholder="CODE" %}  
+                                <div class="input-group-append">
+                                    <button style="font-family: Aclonica" class="btn btn-outline-dark my-2 mt-3 text-center" type="submit">Apply</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+        </div>
+    </div>
+{% endblock %}
+
+    
+
+            
