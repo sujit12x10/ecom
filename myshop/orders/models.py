@@ -2,7 +2,7 @@ from django.db import models
 from django.conf import settings
 from shop.models import Product
 from decimal import Decimal
-from django.core.validators import MaxLengthValidator, MinLengthValidator
+from django.core.validators import MaxLengthValidator, MinLengthValidator, MinValueValidator, MaxValueValidator
 from coupons.models import Coupon
 
 # Create your models here.
@@ -20,7 +20,7 @@ class Order(models.Model):
     stripe_id = models.CharField(max_length=250, blank=True)
 
     coupon = models.ForeignKey(Coupon, related_name="orders", null=True, blank=True, on_delete=models.SET_NULL)
-    discount = models.IntegerField(default=0, validators=[MinLengthValidator(0), MaxLengthValidator(100)])
+    discount = models.IntegerField(default=0, validators=[MinValueValidator(0), MaxValueValidator(100)])
 
     class Meta:
         ordering = ['-created']
